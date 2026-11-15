@@ -1,0 +1,15 @@
+{
+  "name": "ai-video-portfolio-site",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "AI 内容生成作品集 · 静态站点（Vercel 部署）",
+  "scripts": {
+    "build": "node tools/build-site.mjs",
+    "dev": "node tools/serve.mjs",
+    "preview": "node tools/build-site.mjs && node tools/serve.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

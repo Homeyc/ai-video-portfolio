@@ -2,86 +2,75 @@
 
 健康科普赛道 · 竖屏短视频 · **AI 辅助生成成片（WorkBuddy + Prompt Optimizer）**
 
-本仓库存放 5 支 AI 生成的竖屏短片成片原片，以及配套的求职作品集 PDF。
+本仓库存放 5 支 AI 生成的竖屏短片成片原片、配套作品集 PDF，以及一个**纯静态的作品集网站**（部署在 Vercel，GitHub Pages 为镜像）。
 
-- 🎬 **在线观看页**：<https://homeyc.github.io/ai-video-portfolio/>
+- 🎬 **在线观看**：<https://ai-video-portfolio.vercel.app>
 - 📄 **作品集 PDF（10 页 A4）**：[`AI内容生成作品集.pdf`](AI内容生成作品集.pdf)
   （封面与联系方式页的个人信息待补充）
+- 🏠 源码仓库：<https://github.com/Homeyc/ai-video-portfolio>
 
 ---
 
 ## 成片一览
 
-| # | 作品 | 时长 | 规格 | 文件 | 直链 |
-|---|---|---|---|---|---|
-| 01 | 《咖啡因残留：一天的身体账本》 **（主打）** | 87.2s | 1080×1920 · MP4/H.264+AAC · 12.4 MB | [`01-caffeine-residue.mp4`](videos/01-caffeine-residue.mp4) | [raw](https://homeyc.github.io/ai-video-portfolio/videos/01-caffeine-residue.mp4) |
-| 02 | 《椎间盘压力：久坐的代价》 | 27.8s | 1080×1920 · MP4/H.264+AAC · 2.1 MB | [`02-disc-pressure.mp4`](videos/02-disc-pressure.mp4) | [raw](https://homeyc.github.io/ai-video-portfolio/videos/02-disc-pressure.mp4) |
-| 03 | 《睡眠信号读取》 | 45.0s | 1080×1920 · MP4/H.264+AAC · 7.7 MB | [`03-sleep-signal.mp4`](videos/03-sleep-signal.mp4) | [raw](https://homeyc.github.io/ai-video-portfolio/videos/03-sleep-signal.mp4) |
-| 04 | 《助眠底层原料》 | 45.1s | 1080×1920 · MP4/H.264+AAC · 9.6 MB | [`04-sleep-ingredients.mp4`](videos/04-sleep-ingredients.mp4) | [raw](https://homeyc.github.io/ai-video-portfolio/videos/04-sleep-ingredients.mp4) |
-| 05 | 《秋冬季节最佳入睡时间》 | 80.0s | 1080×1920 · MP4/H.264+AAC · 10.1 MB | [`05-best-bedtime-winter.mp4`](videos/05-best-bedtime-winter.mp4) | [raw](https://homeyc.github.io/ai-video-portfolio/videos/05-best-bedtime-winter.mp4) |
+| # | 作品 | 时长 | 规格 | 文件 |
+|---|---|---|---|---|
+| 01 | 《咖啡因残留：一天的身体账本》 **（主打）** | 87.2s | 1080×1920 · MP4/H.264+AAC · 12.4 MB | [`2026-11-14-咖啡因残留.mp4`](videos/2026-11-14-咖啡因残留.mp4) |
+| 02 | 《秋冬季节最佳入睡时间》 | 80.0s | 1080×1920 · MP4/H.264+AAC · 10.1 MB | [`2026-11-14-秋冬季节最佳入睡时间.mp4`](videos/2026-11-14-秋冬季节最佳入睡时间.mp4) |
+| 03 | 《椎间盘压力：久坐的代价》 | 27.8s | 1080×1920 · MP4/H.264+AAC · 2.1 MB | [`2026-11-14-椎间盘压力.mp4`](videos/2026-11-14-椎间盘压力.mp4) |
+| 04 | 《睡眠信号读取》 | 45.0s | 1080×1920 · MP4/H.264+AAC · 7.7 MB | [`2026-11-13-睡眠信号读取.mp4`](videos/2026-11-13-睡眠信号读取.mp4) |
+| 05 | 《助眠底层原料》 | 45.1s | 1080×1920 · MP4/H.264+AAC · 9.6 MB | [`2026-11-13-助眠底层原料.mp4`](videos/2026-11-13-助眠底层原料.mp4) |
 
 总时长 **4 分 45 秒**，全部为 1080×1920 竖屏成片。
 
-> Pages 站点上的直链（`https://homeyc.github.io/ai-video-portfolio/videos/xx.mp4`）支持 HTTP Range，
-> 可在浏览器中直接拖动进度条播放；上面的 raw 链接适合下载。
+> 网站上的排序：**日期倒叙 + 标题拼音首字母正序**。
 
 ---
 
-## 在线播放
+## 网站结构
 
-完整播放器页面：<https://homeyc.github.io/ai-video-portfolio/>
+静态站，无任何运行时依赖。构建产物在 `dist/`：
 
-### 01 《咖啡因残留：一天的身体账本》（主打 · 87 秒）
+```
+dist/
+├── index.html          # 作品列表（封面 + 标题 + 时长），点击在新标签页打开
+├── play-1.html …       # 每支作品一个播放页：<video> 播放器 + 顶部「← 返回列表」
+├── assets/
+│   ├── style.css
+│   └── covers/         # 封面图
+└── videos/             # 成片原片
+```
 
-<video src="https://homeyc.github.io/ai-video-portfolio/videos/01-caffeine-residue.mp4" width="260" controls preload="none"></video>
+| 源文件 | 作用 |
+|---|---|
+| `tools/build-site.mjs` | 扫描 `videos/` → 生成 `dist/`（HTML + 封面 + 视频） |
+| `tools/mp4probe.mjs` | 纯 Node 的 MP4 元信息解析（时长 / 分辨率），无第三方包 |
+| `tools/serve.mjs` | 本地预览服务器（支持 Range 请求，可拖动播放） |
+| `site/style.css` | 站点样式模板 |
+| `vercel.json` | Vercel 部署配置（buildCommand → `node tools/build-site.mjs`，输出 `dist/`） |
 
-[▶ 在浏览器中打开原片](https://homeyc.github.io/ai-video-portfolio/videos/01-caffeine-residue.mp4)
+## 本地开发
 
-### 02 《椎间盘压力：久坐的代价》
+```bash
+npm run build     # 生成 dist/
+npm run dev       # http://127.0.0.1:4173 本地预览
+```
 
-<video src="https://homeyc.github.io/ai-video-portfolio/videos/02-disc-pressure.mp4" width="260" controls preload="none"></video>
+## 新增一支视频
 
-[▶ 在浏览器中打开原片](https://homeyc.github.io/ai-video-portfolio/videos/02-disc-pressure.mp4)
-
-### 03 《睡眠信号读取》
-
-<video src="https://homeyc.github.io/ai-video-portfolio/videos/03-sleep-signal.mp4" width="260" controls preload="none"></video>
-
-[▶ 在浏览器中打开原片](https://homeyc.github.io/ai-video-portfolio/videos/03-sleep-signal.mp4)
-
-### 04 《助眠底层原料》
-
-<video src="https://homeyc.github.io/ai-video-portfolio/videos/04-sleep-ingredients.mp4" width="260" controls preload="none"></video>
-
-[▶ 在浏览器中打开原片](https://homeyc.github.io/ai-video-portfolio/videos/04-sleep-ingredients.mp4)
-
-### 05 《秋冬季节最佳入睡时间》
-
-<video src="https://homeyc.github.io/ai-video-portfolio/videos/05-best-bedtime-winter.mp4" width="260" controls preload="none"></video>
-
-[▶ 在浏览器中打开原片](https://homeyc.github.io/ai-video-portfolio/videos/05-best-bedtime-winter.mp4)
-
----
-
-## 内容说明
-
-这 5 支片子全部围绕**健康科普**展开，但侧重点各不相同：
-
-- **01 / 04** 讲「身体里的残留与原料」——从代谢视角拆解日常习惯；
-- **02** 讲久坐人群的椎间盘负荷，是**职业健康**方向；
-- **03** 讲睡眠信号的可读性，偏**认知 / 科普方法论**；
-- **05** 讲秋冬换季的作息调整，是**季节性场景**下的行为指南。
-
-共同点：全部采用**深色科技风**视觉系统（青色 `#2EC4C6` 主色 / 红色 `#FC5454` 警示 / 蓝色 `#54C0FC` 辅助），
-每支片子都用**数据图表 + 时间轴 + 章节卡**三件套承载信息，而不是靠旁白堆砌。
+1. 把成片放进 `videos/`，文件名格式 **`YYYY-MM-DD-标题.mp4`**（日期决定排序，标题显示在网站上）。
+2. 放一张封面到 `posters/`，文件名与视频同名（`.jpg`）。没有封面也能发布，只是列表里没有缩略图。
+3. `git push` —— Vercel / GitHub Actions 会自动重新构建并上线，**不需要手动改任何代码**。
 
 ## 目录结构
 
 ```
-├── index.html          # Pages 站点首页（内嵌播放器）
-├── posters/            # 播放器封面图
-├── videos/             # 5 支成片原片
-└── AI内容生成作品集.pdf # 作品集 PDF（10 页 A4）
+├── index.html / site/          # 站点源文件（HTML 由构建脚本生成，样式是模板）
+├── tools/                      # 构建脚本
+├── videos/                     # 成片原片
+├── posters/                    # 封面图
+├── vercel.json / package.json  # Vercel 部署配置
+└── AI内容生成作品集.pdf         # 作品集 PDF
 ```
 
 ## 许可
