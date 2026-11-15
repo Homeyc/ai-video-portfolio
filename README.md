@@ -14,11 +14,11 @@
 
 | # | 作品 | 时长 | 规格 | 文件 | 直链 |
 |---|---|---|---|---|---|
-| 01 | 《咖啡因残留：一天的身体账本》 **（主打）** | 87.2s | 1080×1920 · MP4/H.264+AAC · 12.4 MB | [`01-caffeine-residue.mp4`](videos/01-caffeine-residue.mp4) | [raw](https://raw.githubusercontent.com/Homeyc/ai-video-portfolio/main/videos/01-caffeine-residue.mp4) |
-| 02 | 《椎间盘压力：久坐的代价》 | 27.8s | 1080×1920 · MP4/H.264+AAC · 2.1 MB | [`02-disc-pressure.mp4`](videos/02-disc-pressure.mp4) | [raw](https://raw.githubusercontent.com/Homeyc/ai-video-portfolio/main/videos/02-disc-pressure.mp4) |
-| 03 | 《睡眠信号读取》 | 45.0s | 1080×1920 · MP4/H.264+AAC · 7.7 MB | [`03-sleep-signal.mp4`](videos/03-sleep-signal.mp4) | [raw](https://raw.githubusercontent.com/Homeyc/ai-video-portfolio/main/videos/03-sleep-signal.mp4) |
-| 04 | 《助眠底层原料》 | 45.1s | 1080×1920 · MP4/H.264+AAC · 9.6 MB | [`04-sleep-ingredients.mp4`](videos/04-sleep-ingredients.mp4) | [raw](https://raw.githubusercontent.com/Homeyc/ai-video-portfolio/main/videos/04-sleep-ingredients.mp4) |
-| 05 | 《秋冬季节最佳入睡时间》 | 80.0s | 1080×1920 · MP4/H.264+AAC · 10.1 MB | [`05-best-bedtime-winter.mp4`](videos/05-best-bedtime-winter.mp4) | [raw](https://raw.githubusercontent.com/Homeyc/ai-video-portfolio/main/videos/05-best-bedtime-winter.mp4) |
+| 01 | 《咖啡因残留：一天的身体账本》 **（主打）** | 87.2s | 1080×1920 · MP4/H.264+AAC · 12.4 MB | [`01-caffeine-residue.mp4`](videos/01-caffeine-residue.mp4) | [raw](https://homeyc.github.io/ai-video-portfolio/videos/01-caffeine-residue.mp4) |
+| 02 | 《椎间盘压力：久坐的代价》 | 27.8s | 1080×1920 · MP4/H.264+AAC · 2.1 MB | [`02-disc-pressure.mp4`](videos/02-disc-pressure.mp4) | [raw](https://homeyc.github.io/ai-video-portfolio/videos/02-disc-pressure.mp4) |
+| 03 | 《睡眠信号读取》 | 45.0s | 1080×1920 · MP4/H.264+AAC · 7.7 MB | [`03-sleep-signal.mp4`](videos/03-sleep-signal.mp4) | [raw](https://homeyc.github.io/ai-video-portfolio/videos/03-sleep-signal.mp4) |
+| 04 | 《助眠底层原料》 | 45.1s | 1080×1920 · MP4/H.264+AAC · 9.6 MB | [`04-sleep-ingredients.mp4`](videos/04-sleep-ingredients.mp4) | [raw](https://homeyc.github.io/ai-video-portfolio/videos/04-sleep-ingredients.mp4) |
+| 05 | 《秋冬季节最佳入睡时间》 | 80.0s | 1080×1920 · MP4/H.264+AAC · 10.1 MB | [`05-best-bedtime-winter.mp4`](videos/05-best-bedtime-winter.mp4) | [raw](https://homeyc.github.io/ai-video-portfolio/videos/05-best-bedtime-winter.mp4) |
 
 总时长 **4 分 45 秒**，全部为 1080×1920 竖屏成片。
 
