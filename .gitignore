@@ -1,0 +1,8 @@
+# Build artefacts (kept out of the public repo)
+__pycache__/
+*.pyc
+proof/
+frames/
+_qrtest/
+*.html
+!README.md
