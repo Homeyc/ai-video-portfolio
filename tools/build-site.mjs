@@ -25,7 +25,8 @@ const POSTERS = join(ROOT, 'posters');
 const SRC = join(ROOT, 'site');
 const DIST = join(ROOT, 'dist');
 
-const NAME_RE = /^(\d{4})-(\d{2})-(\d{2})-(.+)\.(mp4|mov|webm)$/i;
+// Accepts both YYYY-MM-DD-title.mp4 and YYYYMMDD-title.mp4.
+const NAME_RE = /^(\d{4})-?(\d{2})-?(\d{2})-(.+)\.(mp4|mov|webm)$/i;
 
 // --- pinyin ordering ------------------------------------------------------
 // GB2312 arranges hanzi by pinyin, so its byte order is the pinyin order.
@@ -88,12 +89,31 @@ function collect() {
 // --- templates ------------------------------------------------------------
 const CSS = join(SRC, 'style.css');
 
+// A cover may be .jpg or .png, named after the video file.
+function findCover(videoFile) {
+  const base = videoFile.replace(/\.[^.]+$/, '');
+  for (const ext of ['.jpg', '.jpeg', '.png', '.webp']) {
+    if (existsSync(join(POSTERS, base + ext))) return base + ext;
+  }
+  return null;
+}
+
 function listHtml(items) {
   const total = items.reduce((a, it) => a + (it.duration || 0), 0);
+  // Resolution is derived from the files, so mixed-spec works are stated honestly.
+  const resCount = new Map();
+  for (const it of items) {
+    const k = `${it.width || '?'}×${it.height || '?'}`;
+    resCount.set(k, (resCount.get(k) || 0) + 1);
+  }
+  const spec = [...resCount.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .map(([k, n]) => (n > 1 ? `${k}（${n} 支）` : k))
+    .join(' / ');
   const cards = items.map((it, i) => {
     const n = String(i + 1).padStart(2, '0');
-    const poster = existsSync(join(POSTERS, it.file.replace(/\.[^.]+$/, '.jpg')))
-      ? `assets/covers/${encodeURIComponent(it.file.replace(/\.[^.]+$/, '.jpg'))}` : '';
+    const cover = findCover(it.file);
+    const poster = cover ? `assets/covers/${encodeURIComponent(cover)}` : '';
     const bg = poster ? ` style="background-image:url('${poster}')"` : '';
     return `<a class="card" href="play-${n}.html" target="_blank" rel="noopener">
   <div class="thumb"${bg}><span class="num">${n}</span><span class="play">▶</span></div>
@@ -125,11 +145,11 @@ function listHtml(items) {
 <main class="wrap">
   <div class="kicker">AI Content Generation · Portfolio</div>
   <h1>作品列表</h1>
-  <p class="sub">健康科普赛道的竖屏短视频，全部由本人独立完成 —— 使用 <b>WorkBuddy</b> 生成成片，以 <b>Prompt Optimizer</b> 完成提示词结构化迭代。点击任意作品将在新标签页中播放。</p>
+  <p class="sub">健康科普赛道竖屏短视频，全部由本人独立完成：信息卡风格作品使用 WorkBuddy 免费积分制作；写实科教纪实风作品，采用 WorkBuddy 产出镜头脚本、豆包免费生图、可灵 AI 视频生成（包月套餐），成本可控；数字人口播类视频使用包月套餐，产生少量费用。同时使用 Prompt Optimizer 完成提示词结构化迭代。点击任意作品将在新标签页中播放。</p>
   <div class="meta-row">
     <span class="stat"><b>${items.length}</b> 支成片</span>
     <span class="stat"><b>${fmtDur(total)}</b> 总时长</span>
-    <span class="stat"><b>1080×1920</b> 竖屏规格</span>
+    <span class="stat"><b>${spec}</b> 竖屏规格</span>
   </div>
   <div class="grid">
 ${cards}
@@ -147,13 +167,14 @@ const DESCS = {
   '睡眠信号读取': '唯一一支真人实拍与 3D CG 混剪的作品：失眠特写 → 手表心率 / 血氧读数 → 线框人体仰卧 → 脑部渲染，最后以「间接估算 × 直接读取」的对照图讲清可穿戴设备与脑电检测的精度边界。',
   '助眠底层原料': '从咖啡因半衰期曲线出发，四个暖光实拍镜头串起餐桌与肠胃时间点，最后落到「色氨酸 → 5-羟色胺 → 褪黑素」的三级生化路径图。是主打作品同题材的短版衍生内容。',
   '秋冬季节最佳入睡时间': '季节性场景下的行为指南：上床时间往前挪、晨光作为每天的锚、跟着日落定窗口。用「一周之后」的位移曲线量化作息漂移，落到「记一周 / 提前半小时 / 看十五分钟」三步可执行动作。',
+  '夜间看手机正确方式1': '面向夜间使用手机场景的行为指南：睡前把屏幕调暗、调低蓝光、缩短躺床刷手机的时间，用「亮度 / 时长 / 距离」三件事把屏幕从入睡的敌人变成入睡的帮手。',
+  '数字人口播': '数字人主播口播成片：AI 数字人形象直接讲清一个健康科普选题，脚本、形象、口型与配音一体化生成，验证数字人在健康科普内容中的可用性与制作效率。',
 };
 
 function playHtml(it, n) {
   const videoUrl = 'videos/' + encodeURIComponent(it.file);
-  const coverName = it.file.replace(/\.[^.]+$/, '.jpg');
-  const poster = existsSync(join(POSTERS, coverName))
-    ? ` poster="assets/covers/${encodeURIComponent(coverName)}"` : '';
+  const cover = findCover(it.file);
+  const poster = cover ? ` poster="assets/covers/${encodeURIComponent(cover)}"` : '';
   const desc = DESCS[it.title] || '';
   return `<!doctype html>
 <html lang="zh-CN">
@@ -218,9 +239,9 @@ function main() {
   // covers
   let covers = 0;
   for (const it of items) {
-    const src = join(POSTERS, it.file.replace(/\.[^.]+$/, '.jpg'));
-    if (existsSync(src)) {
-      copyFileSync(src, join(DIST, 'assets', 'covers', it.file.replace(/\.[^.]+$/, '.jpg')));
+    const cover = findCover(it.file);
+    if (cover) {
+      copyFileSync(join(POSTERS, cover), join(DIST, 'assets', 'covers', cover));
       covers++;
     }
   }
@@ -233,7 +254,7 @@ function main() {
   // pages
   writeFileSync(join(DIST, 'index.html'), listHtml(items), 'utf8');
   items.forEach((it, i) => {
-    writeFileSync(join(DIST, `play-${i + 1}.html`), playHtml(it, i + 1), 'utf8');
+    writeFileSync(join(DIST, `play-${String(i + 1).padStart(2, '0')}.html`), playHtml(it, i + 1), 'utf8');
   });
 
   // extra files carried along
