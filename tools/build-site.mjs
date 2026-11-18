@@ -110,8 +110,10 @@ function listHtml(items) {
     .sort((a, b) => b[1] - a[1])
     .map(([k, n]) => (n > 1 ? `${k}（${n} 支）` : k))
     .join(' / ');
-  const cards = items.map((it, i) => {
-    const n = String(i + 1).padStart(2, '0');
+  // Cards are numbered globally, so numbering stays stable across date groups.
+  const globalIndex = new Map(items.map((it, i) => [it.file, i + 1]));
+  const cardHtml = (it) => {
+    const n = String(globalIndex.get(it.file)).padStart(2, '0');
     const cover = findCover(it.file);
     const poster = cover ? `assets/covers/${encodeURIComponent(cover)}` : '';
     const bg = poster ? ` style="background-image:url('${poster}')"` : '';
@@ -119,9 +121,31 @@ function listHtml(items) {
   <div class="thumb"${bg}><span class="num">${n}</span><span class="play">▶</span></div>
   <div class="body">
     <div class="ttl">${esc(it.title)}</div>
-    <div class="meta"><span class="dot"></span>${fmtDate(it.date)} · ${fmtDur(it.duration)} · ${fmtSize(it.size)}</div>
+    <div class="meta">${fmtDur(it.duration)} · ${fmtSize(it.size)}</div>
   </div>
 </a>`;
+  };
+
+  // One section per upload date, newest first.
+  const groups = [];
+  for (const it of items) {
+    let g = groups[groups.length - 1];
+    if (!g || g.date !== it.date) { g = { date: it.date, items: [] }; groups.push(g); }
+    g.items.push(it);
+  }
+  const sections = groups.map(g => {
+    const [y, m, d] = g.date.split('-');
+    const head = `${y} 年 ${Number(m)} 月 ${Number(d)} 日`;
+    const count = g.items.length > 1 ? `${g.items.length} 支作品` : '1 支作品';
+    return `<section class="date-group">
+  <div class="date-head">
+    <h2 class="date-title">${head}</h2>
+    <span class="date-count">${count}</span>
+  </div>
+  <div class="grid">
+${g.items.map(cardHtml).join('\n')}
+  </div>
+</section>`;
   }).join('\n');
 
   return `<!doctype html>
@@ -151,8 +175,8 @@ function listHtml(items) {
     <span class="stat"><b>${fmtDur(total)}</b> 总时长</span>
     <span class="stat"><b>${spec}</b> 竖屏规格</span>
   </div>
-  <div class="grid">
-${cards}
+  <div class="groups">
+${sections}
   </div>
   <p class="foot-note">上传新视频后，本页会在构建时自动同步，无需手动更新。</p>
 </main>
@@ -169,13 +193,19 @@ const DESCS = {
   '秋冬季节最佳入睡时间': '季节性场景下的行为指南：上床时间往前挪、晨光作为每天的锚、跟着日落定窗口。用「一周之后」的位移曲线量化作息漂移，落到「记一周 / 提前半小时 / 看十五分钟」三步可执行动作。',
   '夜间看手机正确方式1': '面向夜间使用手机场景的行为指南：睡前把屏幕调暗、调低蓝光、缩短躺床刷手机的时间，用「亮度 / 时长 / 距离」三件事把屏幕从入睡的敌人变成入睡的帮手。',
   '数字人口播': '数字人主播口播成片：AI 数字人形象直接讲清一个健康科普选题，脚本、形象、口型与配音一体化生成，验证数字人在健康科普内容中的可用性与制作效率。',
+  '算筹讲解': '算筹讲解：以上古计数工具「算筹」为题，讲清它如何靠纵横摆置完成计数与演算 —— 九根小棍，就是一台计算器。',
 };
 
-function playHtml(it, n) {
+function playHtml(it, n, prev, next) {
   const videoUrl = 'videos/' + encodeURIComponent(it.file);
   const cover = findCover(it.file);
   const poster = cover ? ` poster="assets/covers/${encodeURIComponent(cover)}"` : '';
   const desc = DESCS[it.title] || '';
+  const pageOf = (x) => 'play-' + String(x.page).padStart(2, '0') + '.html';
+  const pager = `<nav class="pager">
+  ${prev ? `<a class="pager-link" href="${pageOf(prev)}"><span class="pager-dir">← 上一支</span><span class="pager-ttl">${esc(prev.title)}</span></a>` : '<span></span>'}
+  ${next ? `<a class="pager-link next" href="${pageOf(next)}"><span class="pager-dir">下一支 →</span><span class="pager-ttl">${esc(next.title)}</span></a>` : '<span></span>'}
+</nav>`;
   return `<!doctype html>
 <html lang="zh-CN">
 <head>
@@ -219,6 +249,7 @@ function playHtml(it, n) {
       <h3>这个页面</h3>
       <p class="tiny">播放器直接引用仓库中的成片原片，支持拖动进度条与全屏播放；「下载原片」拿到的是未经剪辑的原始 mp4 文件。</p>
     </div>
+    ${pager}
   </aside>
 </main>
 </body>
@@ -254,7 +285,10 @@ function main() {
   // pages
   writeFileSync(join(DIST, 'index.html'), listHtml(items), 'utf8');
   items.forEach((it, i) => {
-    writeFileSync(join(DIST, `play-${String(i + 1).padStart(2, '0')}.html`), playHtml(it, i + 1), 'utf8');
+    const prev = i > 0 ? { title: items[i - 1].title, page: i } : null;
+    const next = i < items.length - 1 ? { title: items[i + 1].title, page: i + 2 } : null;
+    writeFileSync(join(DIST, `play-${String(i + 1).padStart(2, '0')}.html`),
+      playHtml(it, i + 1, prev, next), 'utf8');
   });
 
   // extra files carried along
